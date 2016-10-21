@@ -69,16 +69,13 @@ struct superblock_pool
 
 // 10^5 -- 10^11 == 7 levels
 #define LEVELS 7
-static struct superblock_pool levels[LEVELS] = 
-        {
-            {NULL, 0, 0},
+static struct superblock_pool levels[LEVELS] = {{NULL, 0, 0},
 						{NULL, 0, 0},
 						{NULL, 0, 0},
 						{NULL, 0, 0},
 						{NULL, 0, 0},
 						{NULL, 0, 0},
-						{NULL, 0, 0}
-        };
+						{NULL, 0, 0}};
 
 static inline int size2level (ssize_t size) 
 {
@@ -93,7 +90,6 @@ static inline int size2level (ssize_t size)
 static inline
 struct superblock_bookkeeping * alloc_super (int power) 
 {
-
   void *page;
   struct superblock* sb;
   int free_objects = 0, bytes_per_object = 0;
@@ -197,6 +193,10 @@ void free(void *ptr)
   //   free count.  If you add the final object back to a superblock,
   //   making all objects free, increment whole_superblocks.
 
+  /* Exercise 3: Poison a newly freed object to detect use-after-free errors.
+   * Hint: use FREE_POISON.
+   */
+
   while (levels[bkeep->level].whole_superblocks > RESERVE_SUPERBLOCK_THRESHOLD) 
   {
     // Exercise 4: Your code here
@@ -206,9 +206,6 @@ void free(void *ptr)
     break; // hack to keep this loop from hanging; remove in ex 4
   }
   
-  /* Exercise 3: Poison a newly freed object to detect use-after-free errors.
-   * Hint: use FREE_POISON
-   */
 }
 
 // Do NOT touch this - this will catch any attempt to load this into a multi-threaded app
