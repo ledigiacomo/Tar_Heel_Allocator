@@ -184,9 +184,6 @@ void *malloc(size_t size)
     return NULL;
   }
   
-
-
-  
   pool = &levels[power];
 
   //if there is no free space in the pool create another superblock
@@ -280,6 +277,7 @@ void free(void *ptr)
    
   printf("Free Count: %d\n", bkeep->free_count);
   printf("Free Objects: %d\n", pool->free_objects);
+  memset((struct object*)ptr,FREE_POISON,(size_t)((1<<(power+5))));
 
   struct object *point = (struct object*) ptr;
   point->next = bkeep->free_list;
@@ -287,23 +285,52 @@ void free(void *ptr)
   bkeep->free_count++;
   pool->free_objects++; 
 
+  if(bkeep->free_count == (SUPER_BLOCK_SIZE/(1<<(bkeep->level+5)))-1)
+        pool->whole_superblocks++;
+
   printf("After Free:\n");
   printf("Free Count: %d\n", bkeep->free_count);
   printf("Free Objects: %d\n", pool->free_objects);
+  printf("Whole Superblocks: %d\n", pool->whole_superblocks);
 
   /* Exercise 3: Poison a newly freed object to detect use-after-free errors.
    * Hint: use FREE_POISON.
    */
-   memset((struct object*)ptr,FREE_POISON,(size_t)((1<<(power+5))+sizeof(void*)));
 
-
-
-  while (levels[bkeep->level].whole_superblocks > RESERVE_SUPERBLOCK_THRESHOLD) {
+  if(levels[bkeep->level].whole_superblocks > RESERVE_SUPERBLOCK_THRESHOLD) 
+  {
     // Exercise 4: Your code here
     // Remove a whole superblock from the level
     // Return that superblock to the OS, using mmunmap
+    struct superblock_bookkeeping *cur = ((superblock_bookkeeping) &levels[power])->next; 
+    struct superblock_bookkeeping *prev = ((superblock_bookkeeping) &levels[power])->next; 
+    if(cur->free_count == (SUPER_BLOCK_SIZE/(1<<(bkeep->level+5)))-1)
+      levels[power]->next = cur->next;
 
-  
+    else
+    {
+      while(cur->next)
+      {
+        prev = cur;
+        cur = cur->next;
+        if(cur->free_count == (SUPER_BLOCK_SIZE/(1<<(bkeep->level+5)))-1)
+        {
+          prev->next = cur->next;
+          mmunmap
+        }
+      }
+    }
+
+
+
+
+
+    start at begining of pool
+    loop through each superblock keep track of previous superblock
+    if(bkeep->free_count == (SUPER_BLOCK_SIZE/(1<<(bkeep->level+5)))-1)
+      prev.next = current.next
+    unman current
+    wholesuper--
     break; // hack to keep this loop from hanging; remove in ex 4
   }
   
