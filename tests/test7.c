@@ -5,14 +5,14 @@
 
 int main() 
 {
-  char* x = malloc(5);
+  int* x = malloc(5);
   printf("Hello %p\n", x);
-  x = "S";
-  printf("x is: %s\n", x);
+  *x = 8;
+  printf("x is: %d\n", *x);
 
   free(x);
   printf("Goodbye %p\n", x);
-  printf("x is: %s\n", x);
+  printf("x is: %d\n", *x);
 
   return (errno);
 }
