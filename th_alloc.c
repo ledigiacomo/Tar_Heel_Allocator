@@ -275,7 +275,7 @@ void free(void *ptr)
   bkeep->free_list = point;
   bkeep->free_count++;
   levels[power].free_objects++; 
-  memset(ptr+8,FREE_POISON,((1<<(power+5)))-8);
+  memset(ptr+sizeof(void*),FREE_POISON,((1<<(power+5)))-sizeof(void*));
   // memset((struct object*) ptr,FREE_POISON,((1<<(power+5))));
 
   //printf("After Free:\n");
