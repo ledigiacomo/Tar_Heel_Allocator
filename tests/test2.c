@@ -8,8 +8,7 @@ int main()
   char *z = malloc(513);
   char *y = malloc(70);
   char *w = malloc(0);
-  char *t = malloc(sizeof(char));
-  t[0] ='j';
+  
   z = "Z\0";
   y = "Y";
   w = "W";
